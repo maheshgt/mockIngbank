@@ -10,4 +10,6 @@ public interface IUserService {
 	public User findByaccountNo(Long accountNumber);
 	
 	public List<UserDto> viewAccounts(Long accountNumber);
+
+	public User userRegistration(UserDto user);
 }

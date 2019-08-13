@@ -1,5 +1,7 @@
 package com.ing.bank.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -14,23 +16,26 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.ing.bank.entity.FundTransfer;
 import com.ing.bank.entity.User;
 import com.ing.bank.repository.FundRepository;
 import com.ing.bank.repository.UserRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FundServiceImplTest {
+	@InjectMocks
+	FundServiceImpl fundServiceImpl;
 	
 	@Mock
 	UserRepository userRepository;
+	
 	@Mock
 	FundRepository fundRepository;
 	
 	/*
 	 * @InjectMocks UserServiceImpl userServiceImpl;
 	 */
-	@InjectMocks
-	FundServiceImpl fundServiceImpl;
+	
 	
 	@Autowired
 	MockMvc mockMvc;
@@ -63,11 +68,19 @@ public class FundServiceImplTest {
 	}
 	
 	
-	  @Test public void testFundTransfer() { double amount=5000;
-	  Mockito.when(userRepository.findByaccountNo(Mockito.anyLong())).thenReturn(user); 
-	 // Mockito.when(fundRepository.save(Mockito.any());
-			  String status = fundServiceImpl.fundTransfer(user.getAccountNo(), user1.getAccountNo(), amount);
-	  
+	  @Test 
+	  public void testFundTransfer() { 
+		  double amount=5000;
+	  Mockito.when(userRepository.findByaccountNo(user.getAccountNo())).thenReturn(user);
+	  user.setBalance(user.getBalance()-amount);
+	  Mockito.when(userRepository.findByaccountNo(user1.getAccountNo())).thenReturn(user1); 
+	  user1.setBalance(user.getBalance()+amount);
+	  FundTransfer fundTransfer = new FundTransfer();
+	  fundTransfer.setAmount(amount); fundTransfer.setFromAccount(user.getAccountNo());fundTransfer.setToAccount(user1.getAccountNo());
+	  Mockito.when(fundRepository.save(Mockito.any())).thenReturn("amount transfer successfully");
+	  Mockito.when(userRepository.save(Mockito.any())).thenReturn(doNothing());
+	 String status = fundServiceImpl.fundTransfer(user.getAccountNo(), user1.getAccountNo(), amount);
+	  assertEquals("amount transfer successfully", status);
 	  }
 	 
 
