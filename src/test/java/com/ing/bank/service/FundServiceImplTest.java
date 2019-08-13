@@ -2,11 +2,11 @@ package com.ing.bank.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -16,8 +16,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.ing.bank.dto.FundTransferDto;
+import com.ing.bank.dto.UserDto;
 import com.ing.bank.entity.FundTransfer;
 import com.ing.bank.entity.User;
+import com.ing.bank.exception.FundTransferException;
 import com.ing.bank.repository.FundRepository;
 import com.ing.bank.repository.UserRepository;
 
@@ -26,23 +29,26 @@ public class FundServiceImplTest {
 	@InjectMocks
 	FundServiceImpl fundServiceImpl;
 	
+	
+
 	@Mock
 	UserRepository userRepository;
-	
+
 	@Mock
 	FundRepository fundRepository;
-	
-	/*
-	 * @InjectMocks UserServiceImpl userServiceImpl;
-	 */
-	
-	
+
+	@InjectMocks
+	UserServiceImpl userServiceImpl;
+
 	@Autowired
 	MockMvc mockMvc;
-	
+
 	static List<User> list = new ArrayList<>();
 	User user = null;
 	User user1 = null;
+	UserDto userd;
+	User userEntity;
+
 	void setUp() {
 		user.setId(1L);
 		user.setFirstName("mahesh");
@@ -64,24 +70,73 @@ public class FundServiceImplTest {
 		user1.setPassword("rokesh");
 		user1.setConfirmPassword("rokesh");
 		list.add(user1);
-		
+
 	}
-	
-	
-	  @Test 
-	  public void testFundTransfer() { 
-		  double amount=5000;
-	  Mockito.when(userRepository.findByaccountNo(user.getAccountNo())).thenReturn(user);
-	  user.setBalance(user.getBalance()-amount);
-	  Mockito.when(userRepository.findByaccountNo(user1.getAccountNo())).thenReturn(user1); 
-	  user1.setBalance(user.getBalance()+amount);
-	  FundTransfer fundTransfer = new FundTransfer();
-	  fundTransfer.setAmount(amount); fundTransfer.setFromAccount(user.getAccountNo());fundTransfer.setToAccount(user1.getAccountNo());
-	  Mockito.when(fundRepository.save(Mockito.any())).thenReturn("amount transfer successfully");
-	  Mockito.when(userRepository.save(Mockito.any())).thenReturn(doNothing());
-	 String status = fundServiceImpl.fundTransfer(user.getAccountNo(), user1.getAccountNo(), amount);
-	  assertEquals("amount transfer successfully", status);
-	  }
-	 
+
+	@Test
+	public void testFundTransfer() {
+		double amount = 5000;
+		Mockito.when(userRepository.findByaccountNo(user.getAccountNo())).thenReturn(user);
+		user.setBalance(user.getBalance() - amount);
+		Mockito.when(userRepository.findByaccountNo(user1.getAccountNo())).thenReturn(user1);
+		user1.setBalance(user.getBalance() + amount);
+		FundTransfer fundTransfer = new FundTransfer();
+		fundTransfer.setAmount(amount);
+		fundTransfer.setFromAccount(user.getAccountNo());
+		fundTransfer.setToAccount(user1.getAccountNo());
+		Mockito.when(fundRepository.save(Mockito.any())).thenReturn("amount transfer successfully");
+		Mockito.when(userRepository.save(Mockito.any())).thenReturn(doNothing());
+		String status = fundServiceImpl.fundTransfer(user.getAccountNo(), user1.getAccountNo(), amount);
+		assertEquals("amount transfer successfully", status);
+	}
+
+	public FundTransfer getFunds() {
+		FundTransfer fundTransfer = new FundTransfer();
+		fundTransfer.setAmount((double) 10000);
+		fundTransfer.setFromAccount(201415L);
+		fundTransfer.setId(1L);
+		fundTransfer.setRemarks("test");
+		fundTransfer.setToAccount(201516L);
+		return fundTransfer;
+	}
+
+	public FundTransfer getFunds1() {
+		FundTransfer fundTransfer = new FundTransfer();
+		fundTransfer.setAmount((double) 10000);
+		fundTransfer.setFromAccount(201415L);
+		fundTransfer.setId(1L);
+		fundTransfer.setRemarks("test");
+		fundTransfer.setToAccount(201516L);
+		return fundTransfer;
+	}
+
+	public FundTransfer getFunds2() {
+		FundTransfer fundTransfer = new FundTransfer();
+		fundTransfer.setAmount((double) 10000);
+		fundTransfer.setFromAccount(201415L);
+		fundTransfer.setId(1L);
+		fundTransfer.setRemarks("test");
+		fundTransfer.setToAccount(201516L);
+		return fundTransfer;
+	}
+
+	@Test
+	public void testGetMyTransactionsPositive() throws FundTransferException {
+		List<FundTransfer> transactList = new ArrayList<FundTransfer>();
+		transactList.add(getFunds());
+		transactList.add(getFunds1());
+		transactList.add(getFunds2());
+		Mockito.when(fundRepository.getMyTransactions(Mockito.anyLong())).thenReturn(transactList);
+		List<FundTransferDto> resultedList = fundServiceImpl.getTransactions(Mockito.anyLong());
+		Assert.assertEquals(resultedList.size(), transactList.size());
+	}
+
+	@Test(expected = FundTransferException.class)
+	public void testGetMyTransactionsNegative() throws FundTransferException {
+		List<FundTransfer> transactList = new ArrayList<FundTransfer>();
+		Mockito.when(fundRepository.getMyTransactions(Mockito.anyLong())).thenReturn(transactList);
+		List<FundTransferDto> resultedList = fundServiceImpl.getTransactions(Mockito.anyLong());
+		Assert.assertEquals(resultedList.size(), transactList.size());
+	}
 
 }

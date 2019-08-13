@@ -10,10 +10,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ing.bank.dto.LoginDto;
 import com.ing.bank.dto.UserDto;
 import com.ing.bank.entity.User;
 import com.ing.bank.exception.UserAccountException;
 import com.ing.bank.repository.UserRepository;
+import com.ing.bank.response.ApiResponse;
+
+
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -56,23 +60,35 @@ public class UserServiceImpl implements IUserService {
 		return user;
 
 	}
-	
-private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
-	
-	//service for user get details
-	public UserDto getUserDetails(Long accountNo) throws UserAccountException
-	{
+
+	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+	@Override
+	public ApiResponse login(LoginDto logindto) {
+
+		User user = userRepository.findByaccountNo(logindto.getAccountNo());
+		if (user == null) {
+			throw new RuntimeException("User doesn't exist.");
+
+		}
+		if (!user.getPassword().equals(logindto.getPassword())) {
+
+			throw new RuntimeException("Password mismatch");
+		}
+		return new ApiResponse(200, "Login Sucess", null);
+	}
+
+	// service for user get details
+	public UserDto getUserDetails(Long accountNo) throws UserAccountException {
 		User user = userRepository.findByaccountNo(accountNo);
 		logger.info("Eneterd into user service");
-		if(user != null )
-		{
+		if (user != null) {
 			UserDto userDto = new UserDto();
-			BeanUtils.copyProperties(user, userDto);		
+			BeanUtils.copyProperties(user, userDto);
 			return userDto;
-		}else {
+		} else {
 			throw new UserAccountException("No user details found");
 		}
 	}
-	
 
 }
