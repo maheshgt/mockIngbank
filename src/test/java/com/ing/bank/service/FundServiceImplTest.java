@@ -1,6 +1,7 @@
 package com.ing.bank.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.doNothing;
 
 import java.util.ArrayList;
@@ -74,7 +75,7 @@ public class FundServiceImplTest {
 	}
 
 	@Test
-	public void testFundTransfer() {
+	public void testFundTransfer() throws FundTransferException {
 		double amount = 5000;
 		Mockito.when(userRepository.findByaccountNo(user.getAccountNo())).thenReturn(user);
 		user.setBalance(user.getBalance() - amount);
@@ -139,4 +140,22 @@ public class FundServiceImplTest {
 		Assert.assertEquals(resultedList.size(), transactList.size());
 	}
 
+@Test
+public void testGetAccountNumbers() {
+	UserDto user=new UserDto();
+	user.setAccountNo(123456l);
+	List<UserDto> user1=new ArrayList<UserDto>();
+	user1.add(user);
+	
+	User user3=new User();
+	user.setAccountNo(1234l);
+	List<User> user4=new ArrayList<User>();
+	user4.add(user3);
+	
+	Mockito.when(userRepository.findByaccountNoNotLike(123456L)).thenReturn(user4);
+	List<User> accountNumbers= fundServiceImpl.getAccountNumbers(123456l);
+
+	assertNotNull(accountNumbers);
+	assertEquals(1, accountNumbers.size());
+}
 }

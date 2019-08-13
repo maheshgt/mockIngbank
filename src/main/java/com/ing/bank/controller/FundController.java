@@ -32,9 +32,10 @@ public class FundController {
 	@Autowired 
 	IUserService userService;
 	
+	private static final Logger logger = LoggerFactory.getLogger(FundController.class);
 	
 	@PostMapping("/{fromAcc}/{toAcc}/{amount}")
-	public ResponseEntity<String> fundTransfer(@PathVariable Long fromAcc, @PathVariable Long toAcc, @PathVariable Double amount){
+	public ResponseEntity<String> fundTransfer(@PathVariable Long fromAcc, @PathVariable Long toAcc, @PathVariable Double amount) throws FundTransferException{
 		return new ResponseEntity<String>(fundService.fundTransfer(fromAcc, toAcc, amount),HttpStatus.OK);
 	}
 	
@@ -43,7 +44,7 @@ public class FundController {
 		return new ResponseEntity<List<UserDto>>(userService.viewAccounts(accountNumber),HttpStatus.OK);
 	}
 	
-private static final Logger logger = LoggerFactory.getLogger(FundController.class);
+
 	
 	//controller for my transactions
 	@GetMapping("/mytransactions")

@@ -11,7 +11,7 @@ import com.ing.bank.exception.FundTransferException;
 @Service
 public interface IFundService {
 
-	public String fundTransfer(Long fromAcc, Long toAcc, Double amount);
+	public String fundTransfer(Long fromAcc, Long toAcc, Double amount) throws FundTransferException;
 
 	public List<User> getAccountNumbers(Long accountNumber);
 

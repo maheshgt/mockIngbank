@@ -25,7 +25,9 @@ import com.ing.bank.service.IUserService;
 @CrossOrigin(allowedHeaders = { "*", "*/" }, origins = { "*", "*/" })
 @RequestMapping("/ingbank")
 public class UserController {
+	
 	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+	
 	@Autowired
 	IUserService userService;
 
@@ -51,7 +53,6 @@ public class UserController {
 	@GetMapping("/getAccountDetails")
 	public ResponseEntity<UserDto> getAccountDetails(@RequestParam Long accountNo) throws UserAccountException {
 		logger.info("Eneterd into user controller");
-
 		return new ResponseEntity<UserDto>(userService.getUserDetails(accountNo), HttpStatus.OK);
 
 	}

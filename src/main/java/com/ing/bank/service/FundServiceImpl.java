@@ -24,14 +24,13 @@ public class FundServiceImpl implements IFundService {
 
 	@Autowired
 	UserRepository userRepository;
-	
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(FundServiceImpl.class);
-	
+
 	@Override
-	public String fundTransfer(Long fromAcc, Long toAcc, Double amount) {
+	public String fundTransfer(Long fromAcc, Long toAcc, Double amount) throws FundTransferException {
 		User user1 = userRepository.findByaccountNo(fromAcc);
-		User user2 =userRepository.findByaccountNo(toAcc);
+		User user2 = userRepository.findByaccountNo(toAcc);
 		if (user1.getBalance() >= amount) {
 			user1.setBalance(user1.getBalance() - amount);
 			userRepository.save(user1);
@@ -45,30 +44,27 @@ public class FundServiceImpl implements IFundService {
 			fundRepository.save(ft);
 			return "amount transfer successfully";
 		} else {
-			return "Insufficient Balance in your account";
+			throw new FundTransferException("insuffiecient balance");
 		}
 
 	}
-	
-	public List<User> getAccountNumbers(Long accountNumber){
+
+	public List<User> getAccountNumbers(Long accountNumber) {
 		return userRepository.findByaccountNoNotLike(accountNumber);
 	}
-	public List<FundTransferDto> getTransactions(Long accountNo) throws FundTransferException
-	{
+
+	public List<FundTransferDto> getTransactions(Long accountNo) throws FundTransferException {
 		logger.info("entered into fund service get transaction");
-		List<FundTransfer> fundTransfer = fundRepository.getMyTransactions(accountNo);		
+		List<FundTransfer> fundTransfer = fundRepository.getMyTransactions(accountNo);
 		List<FundTransferDto> fundTransferDto = new ArrayList<FundTransferDto>();
-		if(fundTransfer.size() != 0)
-		{
-			for(int i =0;i<fundTransfer.size();i++)
-			{
+		if (fundTransfer.size() != 0) {
+			for (int i = 0; i < fundTransfer.size(); i++) {
 				FundTransferDto convertedFundTransferDto = new FundTransferDto();
 				BeanUtils.copyProperties(fundTransfer.get(i), convertedFundTransferDto);
 				fundTransferDto.add(convertedFundTransferDto);
 			}
 			return fundTransferDto;
-		}else
-		{
+		} else {
 			throw new FundTransferException("No data found");
 		}
 	}
